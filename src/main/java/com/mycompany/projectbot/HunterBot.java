@@ -4,33 +4,21 @@ import java.util.*;
 import java.util.logging.Level;
 
 import cz.cuni.amis.introspection.java.JProp;
-import cz.cuni.amis.pogamut.base.agent.navigation.IPathExecutorState;
 import cz.cuni.amis.pogamut.base.communication.worldview.listener.annotation.EventListener;
-import cz.cuni.amis.pogamut.base.utils.Pogamut;
 import cz.cuni.amis.pogamut.base.utils.guice.AgentScoped;
-import cz.cuni.amis.pogamut.base.utils.math.DistanceUtils;
-import cz.cuni.amis.pogamut.base3d.worldview.object.ILocated;
-import cz.cuni.amis.pogamut.ut2004.agent.module.sensomotoric.Weaponry;
-import cz.cuni.amis.pogamut.ut2004.agent.module.sensor.Players;
 import cz.cuni.amis.pogamut.ut2004.agent.module.utils.TabooSet;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.NavigationState;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.UT2004PathAutoFixer;
-import cz.cuni.amis.pogamut.ut2004.agent.navigation.stuckdetector.UT2004DistanceStuckDetector;
-import cz.cuni.amis.pogamut.ut2004.agent.navigation.stuckdetector.UT2004PositionStuckDetector;
-import cz.cuni.amis.pogamut.ut2004.agent.navigation.stuckdetector.UT2004TimeStuckDetector;
 import cz.cuni.amis.pogamut.ut2004.bot.impl.UT2004Bot;
 import cz.cuni.amis.pogamut.ut2004.bot.impl.UT2004BotModuleController;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.ItemType;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.UT2004ItemType;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Initialize;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Move;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Rotate;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Stop;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.StopShooting;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.BotDamaged;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.BotKilled;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.Item;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.NavPoint;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.Player;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.PlayerDamaged;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.PlayerKilled;
@@ -58,7 +46,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     }
 
     void connect() {
-        System.out.print("test 0...");
+        System.out.print("runES 0...");
         String t0 = "consult('src/ES.pl')";
         if (!Query.hasSolution(t0)) {
             System.out.println(t0 + " failed");
@@ -67,7 +55,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         System.out.println("connecting passed");
     }
 
-    static void test(HunterBot bot) {
+    static void runES(HunterBot bot) {
         JRef jref = new JRef(bot);
         //Term a = new Term(jref);
         //Variable Y = new Variable("Y") {};
@@ -80,7 +68,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
 
 
         if (!q3.hasSolution()) {
-            System.out.println("test call failed");
+            System.out.println("runES call failed");
             //System.exit(1);
             return;
         }
@@ -248,8 +236,8 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     @Override
     public void logic() {
         // 1) do you see enemy? 	-> go to PURSUE (start shooting / hunt the enemy)
-        test(this);
-     /*   if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
+        runES(this);
+       /* if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
             stateEngage();
             return;
         }
@@ -280,6 +268,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         // 6) if nothing ... run around items
 //        stateRunAroundItems();
 */
+
     }
 
     //////////////////
@@ -291,7 +280,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      * Fired when bot see any enemy. <ol> <li> if enemy that was attacked last
      * time is not visible than choose new enemy <li> if enemy is reachable and the bot is far - run to him
      * <li> otherwise - stand still (kind a silly, right? :-)
-     * </ol>
+     * </ol>getHealth
      */
     public void stateEngage() {
         System.out.println("Decision is: ENGAGE******************************************************");
@@ -348,6 +337,9 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     ///////////////
     public void stateHit() {
         //log.info("Decision is: HIT");
+        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
+        System.out.println(getInfo().getHealth().intValue());
+        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
         bot.getBotName().setInfo("HIT");
         if (navigation.isNavigating()) {
             navigation.stopNavigation();
@@ -387,7 +379,10 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     // STATE MEDKIT //
     //////////////////
     public void stateMedKit() {
-        //log.info("Decision is: MEDKIT");
+        log.info("Decision is: MEDKIT");
+        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
+        System.out.println(getInfo().getHealth().intValue());
+        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
         Item item = items.getPathNearestSpawnedItem(ItemType.Category.HEALTH);
         if (item == null) {
             log.warning("NO HEALTH ITEM TO RUN TO => ITEMS");
@@ -433,6 +428,8 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
             bot.getBotName().setInfo("RANDOM NAV");
             navigation.navigate(navPoints.getRandomNavPoint());
         } else {
+//            Integer i = new Integer(1);
+            //          i.intValue()
             this.item = item;
             log.info("RUNNING FOR: " + item.getType().getName());
             bot.getBotName().setInfo("ITEM: " + item.getType().getName() + "");

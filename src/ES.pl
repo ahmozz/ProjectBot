@@ -6,31 +6,36 @@ init(I) :-
 
 
 run(X) :-
-    (   should_engage(X)
-    ->  engage(X)
-    ;   true
-    ),
-    (   should_stop_shooting(X)
-    ->  stop_shooting(X)
-    ;   true
-    ),
-    (   being_shot(X)
-    ->  turnAroundToFindEnemy(X)
-    ;   true
-    ),
-    (   enemyToPursue(X)
-    ->  pursueEnemy(X)
-    ;   true
-    ),
-    (   beingSrlyInjured(X), not(enemyToPursue(X)), not(being_shot(X)), not(engage(X))
-    ->  findMedKit(X)
-    ;   true
-    ).
+(   should_engage(X)
+->  engage(X)
+;   true
+),
+(   should_stop_shooting(X)
+->  stop_shooting(X)
+;   true
+),
+(   not(should_engage(X)), being_shot(X)
+->  turnAroundToFindEnemy(X)
+;   true
+),
+(   enemyToPursue(X)
+->  pursueEnemy(X)
+;   true
+),
+(   beingSrlyInjured(X), not(enemyToPursue(X)), not(being_shot(X)), not(should_engage(X))
+->  findMedKit(X)
+;   true
+),
+(   not(enemyToPursue(X)), not(being_shot(X)), not(should_engage(X))
+->  runAroundForItems(X)
+;   true
+).
+
+
+runAroundForItems(X) :-
+  jpl_call(X, 'stateRunAroundItems', [], R).
 
 engage(X) :-
-  write('CA MARCHE'),
-  %init(I),
-  %should_engage(X,R),
   jpl_call(X, 'stateEngage', [], R).
 
 stop_shooting(X) :-
@@ -44,13 +49,14 @@ turnAroundToFindEnemy(X) :-
 pursueEnemy(X) :-
   jpl_call(X, 'statePursue', [], R).
 
-
 findMedKit(X) :-
   jpl_call(X, 'stateMedKit', [], R).
 
 beingSrlyInjured(X) :-
   jpl_call(X, 'getInfo', [], I),
   jpl_call(I, 'getHealth', [], H),
+  jpl_call(H, 'intValue', [], V),
+  V<75,
   jpl_get(X, 'shouldCollectHealth', SCH),
   jpl_is_true(SCH).
 
