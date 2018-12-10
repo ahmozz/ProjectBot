@@ -1,9 +1,6 @@
 package com.mycompany.projectbot;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 import cz.cuni.amis.introspection.java.JProp;
@@ -13,6 +10,8 @@ import cz.cuni.amis.pogamut.base.utils.Pogamut;
 import cz.cuni.amis.pogamut.base.utils.guice.AgentScoped;
 import cz.cuni.amis.pogamut.base.utils.math.DistanceUtils;
 import cz.cuni.amis.pogamut.base3d.worldview.object.ILocated;
+import cz.cuni.amis.pogamut.ut2004.agent.module.sensomotoric.Weaponry;
+import cz.cuni.amis.pogamut.ut2004.agent.module.sensor.Players;
 import cz.cuni.amis.pogamut.ut2004.agent.module.utils.TabooSet;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.NavigationState;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.UT2004PathAutoFixer;
@@ -39,6 +38,10 @@ import cz.cuni.amis.pogamut.ut2004.utils.UT2004BotRunner;
 import cz.cuni.amis.utils.collections.MyCollections;
 import cz.cuni.amis.utils.exception.PogamutException;
 import cz.cuni.amis.utils.flag.FlagListener;
+import org.jpl7.JRef;
+import org.jpl7.Query;
+import org.jpl7.Term;
+import org.jpl7.Variable;
 
 /**
  * Example of Simple Pogamut bot, that randomly walks around the map searching
@@ -49,6 +52,41 @@ import cz.cuni.amis.utils.flag.FlagListener;
  */
 @AgentScoped
 public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
+
+    public HunterBot() {
+        connect();
+    }
+
+    void connect() {
+        System.out.print("test 0...");
+        String t0 = "consult('src/ES.pl')";
+        if (!Query.hasSolution(t0)) {
+            System.out.println(t0 + " failed");
+            // System.exit(1);
+        }
+        System.out.println("connecting passed");
+    }
+
+    static void test(HunterBot bot) {
+        JRef jref = new JRef(bot);
+        //Term a = new Term(jref);
+        //Variable Y = new Variable("Y") {};
+
+        Variable U = new Variable("U") {
+        };
+        //Variable V = new Variable("V") {};
+        Query q3 = new Query("run", new Term[]{jref});
+        Map<String, Term>[] solutions = q3.allSolutions();
+
+
+        if (!q3.hasSolution()) {
+            System.out.println("test call failed");
+            //System.exit(1);
+            return;
+        }
+        System.out.println("passed");
+    }
+
 
     /**
      * boolean switch to activate engage behavior
@@ -110,15 +148,15 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      * Used internally to maintain the information about the bot we're currently
      * hunting, i.e., should be firing at.
      */
-    protected Player enemy = null;
+    public Player enemy = null;
     /**
      * Item we're running for.
      */
-    protected Item item = null;
+    public Item item = null;
     /**
      * Taboo list of items that are forbidden for some time.
      */
-    protected TabooSet<Item> tabooItems = null;
+    public TabooSet<Item> tabooItems = null;
 
     private UT2004PathAutoFixer autoFixer;
 
@@ -181,7 +219,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     /**
      * Resets the state of the Hunter.
      */
-    protected void reset() {
+    public void reset() {
         item = null;
         enemy = null;
         navigation.stopNavigation();
@@ -210,6 +248,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     @Override
     public void logic() {
         // 1) do you see enemy? 	-> go to PURSUE (start shooting / hunt the enemy)
+        test(this);
         if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
             stateEngage();
             return;
@@ -239,13 +278,13 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         }
 
         // 6) if nothing ... run around items
-        stateRunAroundItems();
+//        stateRunAroundItems();
     }
 
     //////////////////
     // STATE ENGAGE //
     //////////////////
-    protected boolean runningToPlayer = false;
+    public boolean runningToPlayer = false;
 
     /**
      * Fired when bot see any enemy. <ol> <li> if enemy that was attacked last
@@ -253,9 +292,10 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      * <li> otherwise - stand still (kind a silly, right? :-)
      * </ol>
      */
-    protected void stateEngage() {
-        //log.info("Decision is: ENGAGE");
-        //config.setName("Hunter [ENGAGE]");
+    public void stateEngage() {
+        System.out.println("Decision is: ENGAGE******************************************************");
+        log.info("Decision is: ENGAGE");
+        config.setName("Hunter [ENGAGE]");
 
         boolean shooting = false;
         double distance = Double.MAX_VALUE;
@@ -305,7 +345,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     ///////////////
     // STATE HIT //
     ///////////////
-    protected void stateHit() {
+    public void stateHit() {
         //log.info("Decision is: HIT");
         bot.getBotName().setInfo("HIT");
         if (navigation.isNavigating()) {
@@ -325,7 +365,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      * to the enemy <li> follow the path - if it reaches the end - set lastEnemy
      * to null - bot would have seen him before or lost him once for all </ol>
      */
-    protected void statePursue() {
+    public void statePursue() {
         //log.info("Decision is: PURSUE");
         ++pursueCount;
         if (pursueCount > 30) {
@@ -340,12 +380,12 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         }
     }
 
-    protected int pursueCount = 0;
+    public int pursueCount = 0;
 
     //////////////////
     // STATE MEDKIT //
     //////////////////
-    protected void stateMedKit() {
+    public void stateMedKit() {
         //log.info("Decision is: MEDKIT");
         Item item = items.getPathNearestSpawnedItem(ItemType.Category.HEALTH);
         if (item == null) {
@@ -361,9 +401,9 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     ////////////////////////////
     // STATE RUN AROUND ITEMS //
     ////////////////////////////
-    protected List<Item> itemsToRunAround = null;
+    public List<Item> itemsToRunAround = null;
 
-    protected void stateRunAroundItems() {
+    public void stateRunAroundItems() {
         //log.info("Decision is: ITEMS");
         //config.setName("Hunter [ITEMS]");
         if (navigation.isNavigatingToItem()) return;

@@ -36,5 +36,6 @@
     <orderEntry type="library" name="Maven: cz.cuni.amis:amis-path-finding:3.7.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.easymock:easymock:2.5.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.2" level="project" />
+    <orderEntry type="library" name="jpl" level="project" />
   </component>
 </module>
