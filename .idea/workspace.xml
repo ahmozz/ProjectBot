@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="608dc232-6f2c-48fd-a49d-25ae8fa5125c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/jpl.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ES.pl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectBot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectBot.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/mycompany/projectbot/HunterBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mycompany/projectbot/HunterBot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$1.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot.class" afterDir="false" />
     </list>
@@ -20,25 +16,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/mycompany/projectbot/HunterBot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="84" column="9" lean-forward="true" selection-start-line="84" selection-start-column="9" selection-end-line="84" selection-end-column="9" />
+            <state relative-caret-position="306">
+              <caret line="273" column="63" lean-forward="true" selection-start-line="273" selection-start-column="63" selection-end-line="273" selection-end-column="63" />
               <folding>
-                <element signature="e#2850#2851#0" expanded="true" />
-                <element signature="e#2875#2876#0" expanded="true" />
-                <element signature="e#15618#15619#0" expanded="true" />
+                <element signature="e#3022#3023#0" expanded="true" />
+                <element signature="e#15634#15635#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$2.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -253,7 +239,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544404371194" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544405017818" />
     <property name="last_opened_file_path" value="C:/Program Files/swipl/lib/jpl.jar!/" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -312,7 +298,7 @@
       <workItem from="1544379204770" duration="1518000" />
       <workItem from="1544380743598" duration="160000" />
       <workItem from="1544381121286" duration="3529000" />
-      <workItem from="1544385817299" duration="16340000" />
+      <workItem from="1544385817299" duration="17149000" />
     </task>
     <task id="LOCAL-00001" summary="v0.0">
       <created>1544386030053</created>
@@ -321,11 +307,34 @@
       <option name="project" value="LOCAL" />
       <updated>1544386030053</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="v0.1">
+      <created>1544404389425</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1544404389425</updated>
+    </task>
+    <task id="LOCAL-00003" summary="v0.1">
+      <created>1544404400949</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1544404400949</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21547000" />
+    <option name="totallyTimeSpent" value="22356000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
@@ -340,13 +349,13 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4993573" weight="0.66890985" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4993573" visible="true" weight="0.37012112" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39838493" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32974428" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="8" sideWeight="0.49871466" visible="true" weight="0.55720055" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49871466" weight="0.18304172" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49807197" weight="0.32974428" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5012854" side_tool="true" weight="0.32974428" />
@@ -375,9 +384,9 @@
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39838493" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32974428" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49871466" weight="0.32974428" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49871466" weight="0.18304172" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49807197" weight="0.32974428" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5012854" side_tool="true" weight="0.32974428" />
@@ -425,7 +434,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="v0" />
     <MESSAGE value="v0.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="v0.0" />
+    <MESSAGE value="v0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="v0.1" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -517,22 +527,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/mycompany/projectbot/HunterBot.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="84" column="9" lean-forward="true" selection-start-line="84" selection-start-column="9" selection-end-line="84" selection-end-column="9" />
-          <folding>
-            <element signature="e#2850#2851#0" expanded="true" />
-            <element signature="e#2875#2876#0" expanded="true" />
-            <element signature="e#15618#15619#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$2.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
-          <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
+          <caret line="7" column="39" lean-forward="true" selection-start-line="7" selection-start-column="39" selection-end-line="7" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/target/classes/com/mycompany/projectbot/HunterBot$1.class">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/mycompany/projectbot/HunterBot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="273" column="63" lean-forward="true" selection-start-line="273" selection-start-column="63" selection-end-line="273" selection-end-column="63" />
+          <folding>
+            <element signature="e#3022#3023#0" expanded="true" />
+            <element signature="e#15634#15635#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -249,7 +249,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     public void logic() {
         // 1) do you see enemy? 	-> go to PURSUE (start shooting / hunt the enemy)
         test(this);
-        if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
+     /*   if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
             stateEngage();
             return;
         }
@@ -279,6 +279,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
 
         // 6) if nothing ... run around items
 //        stateRunAroundItems();
+*/
     }
 
     //////////////////
