@@ -1,11 +1,12 @@
 package com.mycompany.projectbot;
 
-import java.util.*;
-import java.util.logging.Level;
-
+import com.mycompany.projectbot.decision.ExpertSystem;
+import com.mycompany.projectbot.decision.WeaponChoice;
+import com.mycompany.projectbot.enumeration.DistanceRange;
 import cz.cuni.amis.introspection.java.JProp;
 import cz.cuni.amis.pogamut.base.communication.worldview.listener.annotation.EventListener;
 import cz.cuni.amis.pogamut.base.utils.guice.AgentScoped;
+import cz.cuni.amis.pogamut.ut2004.agent.module.sensor.WeaponPref;
 import cz.cuni.amis.pogamut.ut2004.agent.module.utils.TabooSet;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.NavigationState;
 import cz.cuni.amis.pogamut.ut2004.agent.navigation.UT2004PathAutoFixer;
@@ -16,102 +17,118 @@ import cz.cuni.amis.pogamut.ut2004.communication.messages.UT2004ItemType;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Initialize;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.Rotate;
 import cz.cuni.amis.pogamut.ut2004.communication.messages.gbcommands.StopShooting;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.BotDamaged;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.BotKilled;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.Item;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.Player;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.PlayerDamaged;
-import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.PlayerKilled;
+import cz.cuni.amis.pogamut.ut2004.communication.messages.gbinfomessages.*;
 import cz.cuni.amis.pogamut.ut2004.utils.UT2004BotRunner;
 import cz.cuni.amis.utils.collections.MyCollections;
 import cz.cuni.amis.utils.exception.PogamutException;
 import cz.cuni.amis.utils.flag.FlagListener;
-import org.jpl7.JRef;
-import org.jpl7.Query;
-import org.jpl7.Term;
-import org.jpl7.Variable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
- * Example of Simple Pogamut bot, that randomly walks around the map searching
- * for preys shooting at everything that is in its way.
- *
- * @author Rudolf Kadlec aka ik
- * @author Jimmy
+ * @author Ahmed El Mokhtar
+ * @author Daniel Amaral
  */
+
 @AgentScoped
 public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
 
+    public static long lStartTime;
+    public static long lEndTime;
+    public static double timeElapsed;
+    public static int opponentDamage = 0;
+    public static double distance;
+    public static Integer weaponQMatrixIndex = null;
+    public static Integer lastOpponentHealth = 100;
+
     public HunterBot() {
-        connect();
+        ExpertSystem.connect();
     }
 
-    void connect() {
-        System.out.print("runES 0...");
-        String t0 = "consult('src/ES.pl')";
-        if (!Query.hasSolution(t0)) {
-            System.out.println(t0 + " failed");
-            // System.exit(1);
+
+    public void shootAtEnemy() {
+        if (enemy.isVisible()) {
+            distance = info.getLocation().getDistance(enemy.getLocation());
+            weaponQMatrixIndex = WeaponChoice.getBestChoiceIndex(distance);
+            WeaponPref weaponPref = WeaponChoice.getBestChoice(distance);
+            if (shoot.shoot(weaponPref, enemy)) {
+
+                log.info("Shooting at enemy!!!");
+
+                //start
+                lStartTime = System.currentTimeMillis();
+            }
         }
-        System.out.println("connecting passed");
     }
 
-    static void runES(HunterBot bot) {
-        JRef jref = new JRef(bot);
-        //Term a = new Term(jref);
-        //Variable Y = new Variable("Y") {};
+    public void stopShooting() {
+        System.out.println("**************************************************************************************************   YESSSSS");
+        getAct().act(new StopShooting());
 
-        Variable U = new Variable("U") {
-        };
-        //Variable V = new Variable("V") {};
-        Query q3 = new Query("run", new Term[]{jref});
-        Map<String, Term>[] solutions = q3.allSolutions();
+        //end
+        lEndTime = System.currentTimeMillis();
 
+        //time elapsed
+        timeElapsed = (double) (lEndTime - lStartTime) / 1000;
 
-        if (!q3.hasSolution()) {
-            System.out.println("runES call failed");
-            //System.exit(1);
-            return;
+        DistanceRange distanceRange = DistanceRange.getDistanceRange(distance);
+
+        double value = opponentDamage / timeElapsed;
+        opponentDamage = 0;
+
+        WeaponChoice.updateQMatrix(distanceRange.getQMatrixindex(), weaponQMatrixIndex, value);
+    }
+
+    public boolean enemyIsFar() {
+        if (null == enemy || !enemy.isVisible()) {
+            return true;
         }
-        System.out.println("passed");
+        double distance = info.getLocation().getDistance(enemy.getLocation());
+        int decentDistance = Math.round(random.nextFloat() * 800) + 200;
+        return decentDistance < distance;
     }
 
+    public boolean isShooting() {
+        return (info.isShooting() || info.isSecondaryShooting());
+    }
 
-    /**
-     * boolean switch to activate engage behavior
-     */
-    @JProp
-    public boolean shouldEngage = true;
-    /**
-     * boolean switch to activate pursue behavior
-     */
-    @JProp
-    public boolean shouldPursue = true;
-    /**
-     * boolean switch to activate rearm behavior
-     */
-    @JProp
-    public boolean shouldRearm = true;
-    /**
-     * boolean switch to activate collect health behavior
-     */
-    @JProp
-    public boolean shouldCollectHealth = true;
-    /**
-     * how low the health level should be to start collecting health items
-     */
-    @JProp
-    public int healthLevel = 75;
+    public void findEnemy() {
+        if (null == enemy) {
+            // pick new enemy
+            enemy = players.getNearestVisiblePlayer(players.getVisibleEnemies().values());
+        }
+    }
+
+    public boolean lostEnemy() {
+        return null == enemy;
+    }
+
+    public boolean seesEnemy() {
+        if (null != enemy) {
+            return enemy.isVisible();
+        }
+        return false;
+    }
+
+    public boolean weaponReady() {
+        return weaponry.hasLoadedWeapon();
+    }
+
+    public boolean enemyToPersue() {
+        return (enemy != null && !enemy.isVisible() && weaponry.hasLoadedWeapon());
+    }
+
+    public boolean shooting = false;
+
+
     /**
      * how many bot the hunter killed other bots (i.e., bot has fragged them /
      * got point for killing somebody)
      */
     @JProp
     public int frags = 0;
-    /**
-     * how many times the hunter died
-     */
-    @JProp
-    public int deaths = 0;
 
     /**
      * {@link PlayerKilled} listener that provides "frag" counting + is switches
@@ -123,6 +140,19 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     public void playerKilled(PlayerKilled event) {
         if (event.getKiller().equals(info.getId())) {
             ++frags;
+            //end
+            /*
+            lEndTime = System.currentTimeMillis();
+            //time elapsed
+            timeElapsed = (double)(lEndTime - lStartTime)/1000;
+            double value = opponentDamage/timeElapsed;
+            DistanceRange distanceRange = DistanceRange.getDistanceRange(distance);
+            opponentDamage = 0;
+            WeaponChoice.updateQMatrix(distanceRange.getQMatrixindex(), weaponQMatrixIndex, value);
+            */
+            opponentDamage = lastOpponentHealth;
+            lastOpponentHealth = 100;
+            stopShooting();
         }
         if (enemy == null) {
             return;
@@ -132,28 +162,16 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         }
     }
 
-    /**
-     * Used internally to maintain the information about the bot we're currently
-     * hunting, i.e., should be firing at.
-     */
     public Player enemy = null;
-    /**
-     * Item we're running for.
-     */
+
     public Item item = null;
-    /**
-     * Taboo list of items that are forbidden for some time.
-     */
+
     public TabooSet<Item> tabooItems = null;
 
     private UT2004PathAutoFixer autoFixer;
 
     private static int instanceCount = 0;
 
-    /**
-     * Bot's preparation - called before the bot is connected to GB2004 and
-     * launched into UT2004.
-     */
     @Override
     public void prepareBot(UT2004Bot bot) {
         tabooItems = new TabooSet<Item>(bot);
@@ -186,10 +204,13 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         weaponPrefs.addGeneralPref(UT2004ItemType.SHOCK_RIFLE, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.MINIGUN, false);
         weaponPrefs.addGeneralPref(UT2004ItemType.FLAK_CANNON, true);
+        weaponPrefs.addGeneralPref(UT2004ItemType.FLAK_CANNON, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.ROCKET_LAUNCHER, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.LINK_GUN, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.ASSAULT_RIFLE, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.BIO_RIFLE, true);
+
+        WeaponChoice.setPossibleWeaponPrefs(weaponPrefs.getPreferredWeapons().toArray(new WeaponPref[weaponPrefs.getPreferredWeapons().size()]));
     }
 
     /**
@@ -207,9 +228,16 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     /**
      * Resets the state of the Hunter.
      */
-    public void reset() {
-        item = null;
+
+    public void looseIntereset() {
         enemy = null;
+        bot.getBotName().setInfo("LOOSE INTEREST");
+        pursueCount = 0;
+    }
+
+    public void reset() {
+        bot.getBotName().setInfo("RESET");
+        item = null;
         navigation.stopNavigation();
         itemsToRunAround = null;
     }
@@ -217,6 +245,8 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     @EventListener(eventClass = PlayerDamaged.class)
     public void playerDamaged(PlayerDamaged event) {
         log.info("I have just hurt other bot for: " + event.getDamageType() + "[" + event.getDamage() + "]");
+        opponentDamage += event.getDamage();
+        lastOpponentHealth -= event.getDamage();
     }
 
     @EventListener(eventClass = BotDamaged.class)
@@ -235,101 +265,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      */
     @Override
     public void logic() {
-        // 1) do you see enemy? 	-> go to PURSUE (start shooting / hunt the enemy)
-        runES(this);
-       /* if (shouldEngage && players.canSeeEnemies() && weaponry.hasLoadedWeapon()) {
-            stateEngage();
-            return;
-        }
-
-        // 2) are you shooting? 	-> stop shooting, you've lost your target
-        if (info.isShooting() || info.isSecondaryShooting()) {
-            getAct().act(new StopShooting());
-        }
-
-        // 3) are you being shot? 	-> go to HIT (turn around - try to find your enemy)
-        if (senses.isBeingDamaged()) {
-            this.stateHit();
-            return;
-        }
-
-        // 4) have you got enemy to pursue? -> go to the last position of enemy
-        if (enemy != null && shouldPursue && weaponry.hasLoadedWeapon()) {  // !enemy.isVisible() because of 2)
-            this.statePursue();
-            return;
-        }
-
-        // 5) are you hurt?			-> get yourself some medKit
-        if (shouldCollectHealth && info.getHealth() < healthLevel) {
-            this.stateMedKit();
-            return;
-        }
-
-        // 6) if nothing ... run around items
-//        stateRunAroundItems();
-*/
-
-    }
-
-    //////////////////
-    // STATE ENGAGE //
-    //////////////////
-    public boolean runningToPlayer = false;
-
-    /**
-     * Fired when bot see any enemy. <ol> <li> if enemy that was attacked last
-     * time is not visible than choose new enemy <li> if enemy is reachable and the bot is far - run to him
-     * <li> otherwise - stand still (kind a silly, right? :-)
-     * </ol>getHealth
-     */
-    public void stateEngage() {
-        System.out.println("Decision is: ENGAGE******************************************************");
-        log.info("Decision is: ENGAGE");
-        config.setName("Hunter [ENGAGE]");
-
-        boolean shooting = false;
-        double distance = Double.MAX_VALUE;
-        pursueCount = 0;
-
-        // 1) pick new enemy if the old one has been lost
-        if (enemy == null || !enemy.isVisible()) {
-            // pick new enemy
-            enemy = players.getNearestVisiblePlayer(players.getVisibleEnemies().values());
-            if (enemy == null) {
-                log.info("Can't see any enemies... ???");
-                return;
-            }
-        }
-
-        // 2) stop shooting if enemy is not visible
-        if (!enemy.isVisible()) {
-            if (info.isShooting() || info.isSecondaryShooting()) {
-                // stop shooting
-                getAct().act(new StopShooting());
-            }
-            runningToPlayer = false;
-        } else {
-            // 2) or shoot on enemy if it is visible
-            distance = info.getLocation().getDistance(enemy.getLocation());
-            if (shoot.shoot(weaponPrefs, enemy) != null) {
-                log.info("Shooting at enemy!!!");
-                shooting = true;
-            }
-        }
-
-        // 3) if enemy is far or not visible - run to him
-        int decentDistance = Math.round(random.nextFloat() * 800) + 200;
-        if (!enemy.isVisible() || !shooting || decentDistance < distance) {
-            if (!runningToPlayer) {
-                navigation.navigate(enemy);
-                runningToPlayer = true;
-            }
-        } else {
-            runningToPlayer = false;
-            navigation.stopNavigation();
-        }
-
-        item = null;
+        ExpertSystem.runES(this);
     }
 
     ///////////////
@@ -337,6 +273,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     ///////////////
     public void stateHit() {
         //log.info("Decision is: HIT");
+        bot.getBotName().setInfo("TURNING AROUND");
         System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
         System.out.println(getInfo().getHealth().intValue());
         System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
@@ -360,16 +297,20 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
      */
     public void statePursue() {
         //log.info("Decision is: PURSUE");
+        bot.getBotName().setInfo("PURSUE");
         ++pursueCount;
+        System.out.println("_______________________________________________________________________________________" + pursueCount);
         if (pursueCount > 30) {
+            looseIntereset();
             reset();
         }
         if (enemy != null) {
-            bot.getBotName().setInfo("PURSUE");
+            bot.getBotName().setInfo("NAVIGATE TO ENEMY");
             navigation.navigate(enemy);
+            if (!navigation.isNavigating()) {
+                stateRunAroundItems();
+            }
             item = null;
-        } else {
-            reset();
         }
     }
 
@@ -379,16 +320,14 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     // STATE MEDKIT //
     //////////////////
     public void stateMedKit() {
+        bot.getBotName().setInfo("MEDKIT");
         log.info("Decision is: MEDKIT");
-        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
-        System.out.println(getInfo().getHealth().intValue());
-        System.out.println("/////////////////////////////////////////////////////////////////////////////////////////");
         Item item = items.getPathNearestSpawnedItem(ItemType.Category.HEALTH);
         if (item == null) {
             log.warning("NO HEALTH ITEM TO RUN TO => ITEMS");
             stateRunAroundItems();
         } else {
-            bot.getBotName().setInfo("MEDKIT");
+            //bot.getBotName().setInfo("MEDKIT");
             navigation.navigate(item);
             this.item = item;
         }
@@ -402,6 +341,7 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     public void stateRunAroundItems() {
         //log.info("Decision is: ITEMS");
         //config.setName("Hunter [ITEMS]");
+        bot.getBotName().setInfo("RUN AROUND");
         if (navigation.isNavigatingToItem()) return;
 
         List<Item> interesting = new ArrayList<Item>();
@@ -442,7 +382,18 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
     ////////////////
     @Override
     public void botKilled(BotKilled event) {
+        //end
+        /*
+        lEndTime = System.currentTimeMillis();
+        //time elapsed
+        timeElapsed = (double)(lEndTime - lStartTime)/1000;
+        double value = opponentDamage/timeElapsed;
+        opponentDamage = 0;
+        DistanceRange distanceRange = DistanceRange.getDistanceRange(distance);
+        WeaponChoice.updateQMatrix(distanceRange.getQMatrixindex(), weaponQMatrixIndex, value);
         reset();
+        */
+        stopShooting();
     }
 
     ///////////////////////////////////
