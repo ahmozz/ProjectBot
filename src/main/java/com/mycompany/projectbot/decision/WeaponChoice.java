@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Random;
 
 public class WeaponChoice {
+
+    private static Integer minDataAmount = 2;
+
     private static Map<Integer, WeaponPref> possibleWeaponPrefs = new HashMap<Integer, WeaponPref>();
     private static QValue[][] qMatrix;
 
@@ -57,6 +60,9 @@ public class WeaponChoice {
         Integer index = distanceRange.getQMatrixindex();
 
         Integer bestChoice = getRandomWeaponPrefIndex();
+        if (!isMatrixDataEnough(distanceRange)) {
+            return bestChoice;
+        }
 
         // Pick to move to the state that has the maximum Q value
         for (int i = 0; i < possibleWeaponPrefs.size(); i++) {
@@ -68,5 +74,22 @@ public class WeaponChoice {
             }
         }
         return bestChoice;
+    }
+
+    public static Integer getMinDataAmount() {
+        return minDataAmount;
+    }
+
+    public static void setMinDataAmount(Integer minDataAmount) {
+        WeaponChoice.minDataAmount = minDataAmount;
+    }
+
+    public static boolean isMatrixDataEnough(DistanceRange distanceRange) {
+        Integer index = distanceRange.getQMatrixindex();
+        for (int j = 0; j < possibleWeaponPrefs.size(); j++) {
+            if (minDataAmount > qMatrix[index][j].getWeight())
+                return false;
+        }
+        return true;
     }
 }

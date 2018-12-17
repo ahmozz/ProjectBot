@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import static jdk.nashorn.internal.objects.Global.Infinity;
+
 /**
  * @author Ahmed El Mokhtar
  * @author Daniel Amaral
@@ -50,12 +52,16 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
 
     public void shootAtEnemy() {
         if (enemy.isVisible()) {
+            bot.getBotName().setInfo("SHOOTING ENEMY");
+
             distance = info.getLocation().getDistance(enemy.getLocation());
+
             weaponQMatrixIndex = WeaponChoice.getBestChoiceIndex(distance);
             WeaponPref weaponPref = WeaponChoice.getBestChoice(distance);
             if (shoot.shoot(weaponPref, enemy)) {
 
-                log.info("Shooting at enemy!!!");
+                log.info("**************************************************************************************************** Shooting at enemy!!!");
+                System.out.println("*********************************************************************************************** WITH:" + weaponPref);
 
                 //start
                 lStartTime = System.currentTimeMillis();
@@ -71,12 +77,17 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         lEndTime = System.currentTimeMillis();
 
         //time elapsed
-        timeElapsed = (double) (lEndTime - lStartTime) / 1000;
+        timeElapsed = (double) (lEndTime - lStartTime) / 100;
 
         DistanceRange distanceRange = DistanceRange.getDistanceRange(distance);
 
-        double value = opponentDamage / timeElapsed;
+        double value = ((opponentDamage == 0 && timeElapsed == 0) ? 0 : opponentDamage / timeElapsed);
+
         opponentDamage = 0;
+
+        if (value == Infinity || value < 0) {
+            return;
+        }
 
         WeaponChoice.updateQMatrix(distanceRange.getQMatrixindex(), weaponQMatrixIndex, value);
     }
@@ -200,15 +211,14 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         });
 
         // DEFINE WEAPON PREFERENCES
-        weaponPrefs.addGeneralPref(UT2004ItemType.LIGHTNING_GUN, true);
-        weaponPrefs.addGeneralPref(UT2004ItemType.SHOCK_RIFLE, true);
+        //weaponPrefs.addGeneralPref(UT2004ItemType.LIGHTNING_GUN, true);
+        //weaponPrefs.addGeneralPref(UT2004ItemType.SHOCK_RIFLE, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.MINIGUN, false);
         weaponPrefs.addGeneralPref(UT2004ItemType.FLAK_CANNON, true);
-        weaponPrefs.addGeneralPref(UT2004ItemType.FLAK_CANNON, true);
         weaponPrefs.addGeneralPref(UT2004ItemType.ROCKET_LAUNCHER, true);
-        weaponPrefs.addGeneralPref(UT2004ItemType.LINK_GUN, true);
-        weaponPrefs.addGeneralPref(UT2004ItemType.ASSAULT_RIFLE, true);
-        weaponPrefs.addGeneralPref(UT2004ItemType.BIO_RIFLE, true);
+        //weaponPrefs.addGeneralPref(UT2004ItemType.LINK_GUN, true);
+        //weaponPrefs.addGeneralPref(UT2004ItemType.ASSAULT_RIFLE, true);
+        //weaponPrefs.addGeneralPref(UT2004ItemType.BIO_RIFLE, true);
 
         WeaponChoice.setPossibleWeaponPrefs(weaponPrefs.getPreferredWeapons().toArray(new WeaponPref[weaponPrefs.getPreferredWeapons().size()]));
     }
